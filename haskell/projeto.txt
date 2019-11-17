@@ -1,0 +1,8 @@
+## Links 
+
+http://hackage.haskell.org/package/language-ecmascript
+
+
+
+http://www.serpentine.com/wreq/tutorial.html
+https://artyom.me/aeson
