@@ -30,11 +30,11 @@ getType (Transacao _ _ _ _ _ _ t ) = t
 
 -- Filtrar transações por ano.
 
-filterByYear y (Transacao d _ _ _ _ _ _) = y == getYear d
+filterByYear y (Transacao d _ _ _ _ _ tip) = y == getYear d && not (elem "APLICACAO" tip) && not (elem "VALOR_APLICACAO" tip)
 getTransationsByYear _data y = filter (filterByYear y) _data
 
 -- Filtrar transações por ano e mês.
-filterByYearAndMonth y m (Transacao d _ _ _ _ _ _) = y == getYear d && m == getMonth d
+filterByYearAndMonth y m (Transacao d _ _ _ _ _ tip) = y == getYear d && m == getMonth d && not (elem "APLICACAO" tip) && not (elem "VALOR_APLICACAO" tip)
 getTransationsByYearAndMounth _data y m = filter (filterByYearAndMonth y m) _data
 
 

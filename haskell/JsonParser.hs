@@ -10,7 +10,7 @@ import Data.Aeson
 import Tipos
 
 jsonFile :: FilePath
-jsonFile = "data/transacao.json"
+jsonFile = "data/transacoes.json"
 
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
