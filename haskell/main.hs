@@ -17,6 +17,11 @@ main = do
 --    putStrLn data_
 
 
+-- Para usar
+-- db <- getTransations
+
+
+
 
 -- GregorianCalendar Get
 
@@ -31,16 +36,20 @@ getType (Transacao _ _ _ _ _ _ t ) = t
 -- Filtrar transações por ano.
 
 filterByYear y (Transacao d _ _ _ _ _ tip) = y == getYear d && not (elem "APLICACAO" tip) && not (elem "VALOR_APLICACAO" tip)
-getTransationsByYear _data y = filter (filterByYear y) _data
+
+filterTransationsByYear y (Transacao d _ _ _ _ _ tip) = y == getYear d
+getTransationsByYear _data y = filter (filterTransationsByYear y) _data
 
 -- Filtrar transações por ano e mês.
 filterByYearAndMonth y m (Transacao d _ _ _ _ _ tip) = y == getYear d && m == getMonth d && not (elem "APLICACAO" tip) && not (elem "VALOR_APLICACAO" tip)
-getTransationsByYearAndMounth _data y m = filter (filterByYearAndMonth y m) _data
+
+filterTransationsByMonth y m (Transacao d _ _ _ _ _ tip) = y == getYear d && m == getMonth d
+getTransationsByYearAndMounth _data y m = filter (filterTransationsByMonth y m) _data
 
 
 -- Calcular o valor das receitas (créditos) em um determinado mês e ano.
 
-filterByValue f value (Transacao _ textID v _ _ _ tipos) = f v value && textID /= "Saldo Corrente"
+filterByValue f value (Transacao _ _ v _ _ _ tipos) = f v value && not (elem "SALDO_CORRENTE" tipos)
 calculateCreditsByYandM _data y m = foldr (+) 0 (map (getValor) f2) 
     where
         f1 = filter (filterByYearAndMonth y m) _data 
@@ -57,7 +66,7 @@ calculateDebtsByYandM _data y m = foldr (+) 0 (map (getValor) f2)
 
 -- Calcular a sobra (receitas - despesas) de determinado mês e ano
 
-filterTransations (Transacao _ textID _ _ _ _ _) = textID /= "Saldo Corrente"
+filterTransations (Transacao _ _ _ _ _ _ tipos) = not (elem "SALDO_CORRENTE" tipos)
 calculateRemainderByYandM _data y m = foldr (+) 0 (map (getValor) f2) 
     where
         f1 = filter (filterByYearAndMonth y m) _data
@@ -73,7 +82,7 @@ calculateBalanceByYandM _data y m = foldr (+) 0 (map (getValor) f1)
 
 
 -- Calcular o saldo máximo atingido em determinado ano e mês 
--- TODO: Falta ordenar
+-- TODO: Posso jogar tudo em uma lista
 
 calculeBalaceAchieved [] h _ = h 
 calculeBalaceAchieved (x:xs) high balance
@@ -83,16 +92,16 @@ calculeBalaceAchieved (x:xs) high balance
         newBalance = (getValor x) + balance
 
 calculateMaxBAbyMonth [] _ _ = error "A função necessita de transações "
-calculateMaxBAbyMonth _data y m =  calculeBalaceAchieved (tail _data) balance balance 
+calculateMaxBAbyMonth _data y m =  calculeBalaceAchieved (tail f1) balance balance 
     where
         f1 = filter (filterByYearAndMonth y m) _data
-        balance = getValor (head _data)
+        balance = getValor (head f1)
 
 
 
 
 -- Calcular o saldo mínimo atingido em determinado ano e mês
--- TODO: Faltar ordenar
+-- TODO: Posso jogar tudo em uma lista
 
 
 calculeBalaceAchievedMin [] h _ = h 
@@ -103,10 +112,10 @@ calculeBalaceAchievedMin (x:xs) low balance
         newBalance = (getValor x) + balance
 
 calculateMinBAbyMonth [] _ _ = error "A função necessita de transações "
-calculateMinBAbyMonth _data y m =  calculeBalaceAchievedMin (tail _data) balance balance 
+calculateMinBAbyMonth _data y m =  calculeBalaceAchievedMin (tail f1) balance balance 
     where
         f1 = filter (filterByYearAndMonth y m) _data
-        balance = getValor (head _data)
+        balance = getValor (head f1)
 
 
 
@@ -135,30 +144,6 @@ calculateAverageRemainderByYear _data y = (foldr (+) 0 (map (getValor) f2)) / fr
 
 -- Retornar o fluxo de caixa de determinado mês/ano. O fluxo de caixa nada mais é do que uma lista 
 -- contendo pares (dia,saldoFinalDoDia).
-
-
-
--- calculeBalaceAchieved [] h _ = h 
--- calculeBalaceAchieved (x:xs) high balance
---     | newBalance > high = calculeBalaceAchieved xs newBalance newBalance
---     | otherwise = calculeBalaceAchieved xs high newBalance
---     where
---         newBalance = (getValor x) + balance
-
--- calculateMaxBAbyMonth [] _ _ = error "A função necessita de transações "
--- calculateMaxBAbyMonth _data y m =  calculeBalaceAchieved (tail _data) balance balance 
---     where
---         f1 = filter (filterByYearAndMonth y m) _data
---         balance = getValor (head _data)
-
-
-
-
-
-filterByDay day (Transacao datas _ _ _ _ _ _) = day == getDayOfMonth datas
-
-
-
 
 
 

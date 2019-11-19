@@ -18,6 +18,7 @@ getJSON = B.readFile jsonFile
 getTransations :: IO (Either String [Transacao])
 getTransations = (eitherDecode <$> getJSON) :: IO (Either String [Transacao])
 
+
 extract (Right e) = e
 extract (Left e) = error e
 
