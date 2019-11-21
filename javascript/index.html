@@ -1,6 +1,11 @@
 <html>
 <head>
-
+    <title>Projeto FUNCIONAL</title>
+    <style>
+        .transaction{
+            border: 1px solid grey;
+        }
+    </style>
 </head>
 <body>
     <h1>Projeto funcional</h1>
@@ -28,18 +33,22 @@
         <option value="calculateExpense">4</option>
         <option value="calculateLeftovers">5</option>
         <option value="calculateBalanceByYearAndMonth">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
+        <option value="calculeBalaceMaxAchieved">7</option>
+        <option value="calculeBalaceMinAchieved">8</option>
         <option value="calculateAnnualRevenueAverage">9</option>
         <option value="calculateAnnualExpenseAverage">10</option>
         <option value="calculateAnnualLeftoversAverage">11</option>
-        <option value="12">12</option>
+        <option value="getCashFlow">12</option>
     </select>
 
     <p>informe os parametros desejados (separados por virgula) para a função selecionada</p>
-    <input type="text" name="parame     tros" id="parametros" placeholder="parm1, parm2, ...., parms">
-
+    <input type="text" name="parametros" id="parametros" placeholder="parm1, parm2, ...., parms">
     <button id="go">testar!</button>
+
+    <div id="response"></div>
+
+    
+<script src="transaction-wc.js"></script>
 <script src="observer.js"></script>
 <script src="structs.js"></script>
 <script src="main.js"></script>

@@ -56,7 +56,7 @@ class Transacao{
             this.textoIdentificador = parserObject.textoIdentificador
             this.valor = parserObject.valor
             this.descricao = parserObject.descricao
-            this.numeroDoc = parserObject.numeroDoc
+            this.numeroDoc = parserObject.numeroDOC
             this.tipos = parserObject.tipos
         }
 
