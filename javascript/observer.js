@@ -16,7 +16,7 @@ const generateHtml = (genericResponse) => {
     if(typeof genericResponse == "number") {
         response = [document.createElement("p")]
         response[0].textContent = genericResponse
-    } else if(genericResponse instanceof TransactionWC){
+    } else if(genericResponse[0] instanceof Transacao) {
         response = genericResponse.map(t => new TransactionWC(t.data.ano,t.data.mes, t.data.diaDoMes, t.textoIdentificador, t.valor, t.numeroDoc, t.tipos, t.descricao))
     } else {
         response = [document.createElement("ul")]
