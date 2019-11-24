@@ -1,29 +1,12 @@
+module Main where
 import JsonParser
 import Tipos
-
-
-
-
+import Util
 
 main :: IO()
 main = do
-    t <- getTransations
-    let data_ = getData t
-    putStrLn (show (cashFlowByMonth data_ 2017 2))
-    putStrLn ("Oi")
-    --putStrLn (getTransationsByYear data_ 2017)
-    --putStrLn(show (getTransations data_ 2017))
---    let data_ = getData t
---    putStrLn data_
+    putStrLn "Fim."
 
-
--- Para usar
--- db <- getTransations
-
-
-
-
--- GregorianCalendar Get
 
 getYear (GregorianCalendar y _ _ ) = y
 getMonth (GregorianCalendar _ m _ ) = m
@@ -32,6 +15,9 @@ getDayOfMonth (GregorianCalendar _ _ d) = d
 getValor (Transacao _ _ v _ _ _  _) = v
 getDatas (Transacao d _ _ _ _ _ _ ) = d
 getType (Transacao _ _ _ _ _ _ t ) = t
+
+
+
 
 -- Filtrar transações por ano.
 
@@ -44,21 +30,21 @@ getTransationsByYear _data y = filter (filterTransationsByYear y) _data
 filterByYearAndMonth y m (Transacao d _ _ _ _ _ tip) = y == getYear d && m == getMonth d && not (elem "APLICACAO" tip) && not (elem "VALOR_APLICACAO" tip)
 
 filterTransationsByMonth y m (Transacao d _ _ _ _ _ tip) = y == getYear d && m == getMonth d
-getTransationsByYearAndMounth _data y m = filter (filterTransationsByMonth y m) _data
+getTransationsByMounth _data y m = filter (filterTransationsByMonth y m) _data
 
 
 -- Calcular o valor das receitas (créditos) em um determinado mês e ano.
 
 filterByValue f value (Transacao _ _ v _ _ _ tipos) = f v value && not (elem "SALDO_CORRENTE" tipos)
-calculateCreditsByYandM _data y m = foldr (+) 0 (map (getValor) f2) 
+calculateCreditsByMonth _data y m = foldr (+) 0 (map (getValor) f2) 
     where
-        f1 = filter (filterByYearAndMonth y m) _data 
+        f1 = filter (filterByYearAndMonth y m) _data
         f2 = filter (filterByValue (>=) 0) f1
 
 -- Calcular o valor das despesas (débitos) em um determinado mês e ano.
 
 
-calculateDebtsByYandM _data y m = foldr (+) 0 (map (getValor) f2) 
+calculateDebtsByMonth _data y m = foldr (+) 0 (map (getValor) f2) 
     where
         f1 = filter (filterByYearAndMonth y m) _data
         f2 = filter (filterByValue (<=) 0) f1
@@ -67,7 +53,7 @@ calculateDebtsByYandM _data y m = foldr (+) 0 (map (getValor) f2)
 -- Calcular a sobra (receitas - despesas) de determinado mês e ano
 
 filterTransations (Transacao _ _ _ _ _ _ tipos) = not (elem "SALDO_CORRENTE" tipos)
-calculateRemainderByYandM _data y m = foldr (+) 0 (map (getValor) f2) 
+calculateRemainderByMonth _data y m = foldr (+) 0 (map (getValor) f2) 
     where
         f1 = filter (filterByYearAndMonth y m) _data
         f2 = filter (filterTransations) f1
@@ -75,7 +61,7 @@ calculateRemainderByYandM _data y m = foldr (+) 0 (map (getValor) f2)
 
 -- Calcular o saldo final em um determinado ano e mês
 
-calculateBalanceByYandM _data y m = foldr (+) 0 (map (getValor) f1) 
+calculateBalanceByMonth _data y m = foldr (+) 0 (map (getValor) f1) 
     where
         f1 = filter (filterByYearAndMonth y m) _data
 

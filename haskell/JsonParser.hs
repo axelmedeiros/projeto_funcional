@@ -1,8 +1,7 @@
 module JsonParser
 (
     getJSON,
-    getTransations,
-    getData
+    getDB
 ) where
 
 import qualified Data.ByteString.Lazy as B  
@@ -26,6 +25,7 @@ extract (Left e) = error e
 getData d = extract d
 
 
-
--- test :: Either String [Transacao] -> Transacao
--- test xs = head xs;;;;;;;//////////
+getDB = do
+    t <- getTransations
+    let db = getData t
+    return db
