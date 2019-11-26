@@ -70,35 +70,25 @@ calculateBalanceByMonth _data y m = foldr (+) 0 (map (getValor) f1)
 -- Calcular o saldo máximo atingido em determinado ano e mês 
 -- TODO: Posso jogar tudo em uma lista
 
-calculeBalaceAchieved [] h _ = h 
-calculeBalaceAchieved (x:xs) high balance
-    | newBalance > high = calculeBalaceAchieved xs newBalance newBalance
-    | otherwise = calculeBalaceAchieved xs high newBalance
+calculateBalaceAchieved [] b = [b] 
+calculateBalaceAchieved (x:xs) balance
+    = [balance] ++ calculateBalaceAchieved xs newBalance
     where
         newBalance = (getValor x) + balance
 
 calculateMaxBAbyMonth [] _ _ = error "A função necessita de transações "
-calculateMaxBAbyMonth _data y m =  calculeBalaceAchieved (tail f1) balance balance 
+calculateMaxBAbyMonth _data y m =  maximum (calculateBalaceAchieved (tail f1) balance) 
     where
         f1 = filter (filterByYearAndMonth y m) _data
         balance = getValor (head f1)
 
 
 
-
 -- Calcular o saldo mínimo atingido em determinado ano e mês
 -- TODO: Posso jogar tudo em uma lista
 
-
-calculeBalaceAchievedMin [] h _ = h 
-calculeBalaceAchievedMin (x:xs) low balance
-    | newBalance < low = calculeBalaceAchievedMin xs newBalance newBalance
-    | otherwise = calculeBalaceAchievedMin xs low newBalance
-    where
-        newBalance = (getValor x) + balance
-
 calculateMinBAbyMonth [] _ _ = error "A função necessita de transações "
-calculateMinBAbyMonth _data y m =  calculeBalaceAchievedMin (tail f1) balance balance 
+calculateMinBAbyMonth _data y m = minimum (calculateBalaceAchieved (tail f1) balance) 
     where
         f1 = filter (filterByYearAndMonth y m) _data
         balance = getValor (head f1)
@@ -152,3 +142,5 @@ cashFlowByMonth _data y m = calculateBalanceByDay (tail f2) balance day
         f2 = [ (getDay t, getValor t) | t <- f1 ]
         balance = getV (head f2)
         day = getD (head f2)
+
+

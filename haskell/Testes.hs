@@ -6,7 +6,8 @@ import Tipos
 
 
 
-
+-- Use to especi
+digits d n = fromInteger (round (d * 10^n)) / 10^n
 
 
 testFilterYear01 = 
@@ -108,7 +109,7 @@ testDebitsMonth01 =
     do 
         db <- getDB
         let f1 = take 15 (getTransationsByMounth db 2017 11)
-        assertEqual "Créditos do mês em 11/2017" (-1681.03) (calculateDebtsByMonth f1 2017 11))
+        assertEqual "Créditos de parte do mês em 11/2017" (-1681.03) (calculateDebtsByMonth f1 2017 11))
 
 
 testDebitsMonth02 = 
@@ -116,7 +117,7 @@ testDebitsMonth02 =
     do 
         db <- getDB
         let f1 = take 15 (getTransationsByMounth db 2018 1)
-        assertEqual "Créditos do mês em 12/2018" (-22147.67) (calculateDebtsByMonth f1 2018 1))
+        assertEqual "Créditos de parte do mês em 12/2018" (-22147.67) (calculateDebtsByMonth f1 2018 1))
 
 
 
@@ -125,5 +126,129 @@ testsDebitsMonth =
         TestLabel "Caso 1" testDebitsMonth01, 
         TestLabel "Caso 2" testDebitsMonth02]
 
+
+testRemainderMonth01 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = take 10 (getTransationsByMounth db 2019 4)
+        assertEqual "Resto de parte do mês em 04/2019" (-50770.93) (calculateRemainderByMonth f1 2019 4))
+
+
+testRemainderMonth02 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = take 15 (getTransationsByMounth db 2019 2)
+        assertEqual "Resto de parte do mês em 02/2019" (4343.23) (calculateRemainderByMonth f1 2019 2))
+
+
+
+testRemainderMonth03 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = getTransationsByMounth db 2019 5
+        let debits = calculateDebtsByMonth db 2019 5
+        let credits = calculateCreditsByMonth db 2019 5
+        assertEqual "Resto do mês em 05/2019" (debits + credits) (calculateRemainderByMonth f1 2019 5))
+
+testsRemainderMonth =
+    TestList [ 
+        TestLabel "Caso 1" testRemainderMonth01, 
+        TestLabel "Caso 2" testRemainderMonth02,
+        TestLabel "Caso 3" testRemainderMonth03 ]
+
+
+testBalanceMonth01 =
+    TestCase (
+    do 
+        db <- getDB
+        let balanceNextMont = valor $ ( head (getTransationsByMounth db 2018 8))
+        assertEqual "Saldo final de 07/2018" (balanceNextMont) (digits (calculateBalanceByMonth db 2018 7) 1))
+
+
+
+testBalanceMonth02 =
+    TestCase (
+    do 
+        db <- getDB
+        let balanceNextMont = valor $ ( head (getTransationsByMounth db 2017 11))
+        assertEqual "Saldo final de 10/2017" (balanceNextMont) (digits (calculateBalanceByMonth db 2017 10) 2))
+
+
+
+testBalanceMonth03 =
+    TestCase (
+    do 
+        db <- getDB
+        let balanceNextMont = valor $ ( head (getTransationsByMounth db 2017 4))
+        assertEqual "Saldo final de 03/2017" (balanceNextMont) (digits (calculateBalanceByMonth db 2017 3) 2))
+
+
+
+testBalanceMonth04 =
+    TestCase (
+    do 
+        db <- getDB
+        let balanceNextMont = valor $ ( head (getTransationsByMounth db 2019 5))
+        assertEqual "Saldo final de 04/2019 " (balanceNextMont) (digits (calculateBalanceByMonth db 2019 4) 2))
+
+
+
+testsBalanceMonth =
+    TestList [ 
+        TestLabel "Caso 1" testBalanceMonth01, 
+        TestLabel "Caso 2" testBalanceMonth02,
+        TestLabel "Caso 3" testBalanceMonth03,
+        TestLabel "Caso 4" testBalanceMonth04 ]
+
+
+
+testMaxBalanceMonth01 =
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = take 15 (getTransationsByMounth db 2019 2)
+        assertEqual "Saldo máximo de parte do mês em 02/2019" (162782.5) (calculateMaxBAbyMonth f1 2019 2))
+
+testMaxBalanceMonth02 =
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = take 15 (getTransationsByMounth db 2017 6)
+        assertEqual "Saldo máximo de parte do mês em 02/2019" (25744.98) (calculateMaxBAbyMonth f1 2017 6))
+
+
+testsMaxBalanceMonth = 
+    TestList [ 
+        TestLabel "Caso 1" testMaxBalanceMonth01, 
+        TestLabel "Caso 2" testMaxBalanceMonth02 ]
+
+
+
+
+
+testMinBalanceMonth01 =
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = take 15 (getTransationsByMounth db 2019 2)
+        assertEqual "Saldo mínimo de parte do mês em 02/2019" (156298.14) (digits (calculateMinBAbyMonth f1 2019 2) 2))
+
+
+
+testMinBalanceMonth02 =
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = take 15 (getTransationsByMounth db 2017 6)
+        assertEqual "Saldo mínimo de parte do mês em 02/2019" (21290.88) (digits (calculateMinBAbyMonth f1 2017 6) 2))
+
+
+testsMinBalanceMonth = 
+    TestList [ 
+        TestLabel "Caso 1" testMinBalanceMonth01, 
+        TestLabel "Caso 2" testMinBalanceMonth02 ]
 
 
