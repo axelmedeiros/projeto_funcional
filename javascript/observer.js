@@ -3,7 +3,14 @@ let data = null
 fetch("http://150.165.15.10:8080/todasTransacoes",{method: 'POST'})
     .then((response) => response.json())
     .then((json) => data = json.map(obj => new Transacao(obj)))
-    
+
+
+
+// fetch("../haskell/data/transacoes.json")
+//     .then((response) => response.json())
+//     .then((json) => data = json.map(obj => new Transacao(obj)))
+
+
 
 const functionSelector = document.querySelector("#op")
 const parametros = document.querySelector("#parametros")
@@ -16,7 +23,7 @@ const generateHtml = (genericResponse) => {
     if(typeof genericResponse == "number") {
         response = [document.createElement("p")]
         response[0].textContent = genericResponse
-    } else if(genericResponse[0] instanceof Transacao) {
+    } else if(genericResponse[0] instanceof Transacao){
         response = genericResponse.map(t => new TransactionWC(t.data.ano,t.data.mes, t.data.diaDoMes, t.textoIdentificador, t.valor, t.numeroDoc, t.tipos, t.descricao))
     } else {
         response = [document.createElement("ul")]
