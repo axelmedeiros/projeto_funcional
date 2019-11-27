@@ -1,13 +1,14 @@
 let data = null 
 
-// fetch("http://150.165.15.10:8080/todasTransacoes",{method: 'POST'})
-//     .then((response) => response.json())
-//     .then((json) => data = json.map(obj => new Transacao(obj)))
-    
-
-fetch("../haskell/data/transacoes.json")
+fetch("http://150.165.15.10:8080/todasTransacoes",{method: 'POST'})
     .then((response) => response.json())
     .then((json) => data = json.map(obj => new Transacao(obj)))
+
+
+
+// fetch("../haskell/data/transacoes.json")
+//     .then((response) => response.json())
+//     .then((json) => data = json.map(obj => new Transacao(obj)))
 
 
 
