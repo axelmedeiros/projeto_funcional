@@ -151,7 +151,8 @@ testRemainderMonth03 =
         let f1 = getTransationsByMounth db 2019 5
         let debits = calculateDebtsByMonth db 2019 5
         let credits = calculateCreditsByMonth db 2019 5
-        assertEqual "Resto do mês em 05/2019" (debits + credits) (calculateRemainderByMonth f1 2019 5))
+        assertEqual "Resto do mês em 05/2019" (digits (debits + credits) 2) ( digits (calculateRemainderByMonth f1 2019 5) 2)
+    )
 
 testsRemainderMonth =
     TestList [ 
@@ -192,7 +193,7 @@ testBalanceMonth04 =
     do 
         db <- getDB
         let balanceNextMont = valor $ ( head (getTransationsByMounth db 2019 5))
-        assertEqual "Saldo final de 04/2019 " (balanceNextMont) (digits (calculateBalanceByMonth db 2019 4) 2))
+        assertEqual "Saldo final de 04/2019 " (204249.14) (digits (calculateBalanceByMonth db 2019 4) 2))
 
 
 
@@ -226,9 +227,6 @@ testsMaxBalanceMonth =
         TestLabel "Caso 2" testMaxBalanceMonth02 ]
 
 
-
-
-
 testMinBalanceMonth01 =
     TestCase (
     do 
@@ -243,7 +241,7 @@ testMinBalanceMonth02 =
     do 
         db <- getDB
         let f1 = take 15 (getTransationsByMounth db 2017 6)
-        assertEqual "Saldo mínimo de parte do mês em 02/2019" (21290.88) (digits (calculateMinBAbyMonth f1 2017 6) 2))
+        assertEqual "Saldo mínimo de parte do mês em 06/2017" (21290.88) (digits (calculateMinBAbyMonth f1 2017 6) 2))
 
 
 testsMinBalanceMonth = 
@@ -257,7 +255,7 @@ testCalculateAverageCreditsByYear01 =
     do 
         db <- getDB
         let f1 = filter (filterByValue (>) 0)(filter (filterByYearAndMonth 2018 0) db)
-        assertEqual "Saldo mínimo de parte do mês em 02/2019" (3498.386666666667) (calculateAverageCreditsByYear f1 2018))
+        assertEqual "Teste para média da receitas em 00/2018" (3498.386666666667) (calculateAverageCreditsByYear f1 2018))
 
 
 
@@ -266,7 +264,7 @@ testCalculateAverageCreditsByYear02 =
     do 
         db <- getDB
         let f1 = filter (filterByValue (>) 0)(filter (filterByYearAndMonth 2019 0) db)
-        assertEqual "Saldo mínimo de parte do mês em 02/2019" (6256.8) (digits (calculateAverageCreditsByYear f1 2019) 2))
+        assertEqual "Teste para média da receitas em 00/2019" (6256.8) (digits (calculateAverageCreditsByYear f1 2019) 2))
 
 
 testsCalculateAverageCreditsByYear =
@@ -281,7 +279,7 @@ testCalculateAverageDebitsByYear01 =
     do 
         db <- getDB
         let f1 = filter (filterByValue (<) 0)(filter (filterByYearAndMonth 2019 0) db)
-        assertEqual "Saldo mínimo de parte do mês em 02/2019" (-1299.24) (digits (calculateAverageDebitsByYear f1 2019) 2))
+        assertEqual "Teste para média das despesas em 02/2019" (-1299.24) (digits (calculateAverageDebitsByYear f1 2019) 2))
 
 
 
@@ -290,11 +288,88 @@ testCalculateAverageDebitsByYear02 =
     do 
         db <- getDB
         let f1 = filter (filterByValue (<) 0)(filter (filterByYearAndMonth 2018 0) db)
-        assertEqual "Saldo mínimo de parte do mês em 02/2019" (-1333.93) (digits (calculateAverageDebitsByYear f1 2018) 2))
+        assertEqual "Teste para média das despesas em 02/2019" (-1333.93) (digits (calculateAverageDebitsByYear f1 2018) 2))
 
 testsCalculateAverageDebitsByYear =
     TestList [ 
         TestLabel "Caso 1" testCalculateAverageDebitsByYear01, 
-        TestLabel "Caso 2" testsCalculateAverageDebitsByYear ]
+        TestLabel "Caso 2" testCalculateAverageDebitsByYear02 ]
+
+
+testAverageRemainderByYear01 =
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = (filter (filterByYearAndMonth 2019 4) db)
+        assertEqual "Teste para média das sobras em 04/2019" (2620.64) (digits (calculateAverageRemainderByYear f1 2019) 2))
+
+
+testAverageRemainderByYear02 =
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = (filter (filterByYearAndMonth 2019 3) db)
+        assertEqual "Teste para média das sobras em 02/2019" (952.74) (digits (calculateAverageRemainderByYear f1 2019) 2))
+
+
+
+testsAverageRemainderByYear =
+    TestList [ 
+        TestLabel "Caso 1" testAverageRemainderByYear01, 
+        TestLabel "Caso 2" testAverageRemainderByYear02 ]
+
+
+testCashFlowMonth01 = 
+    TestCase (
+    do 
+        db <- getDB
+        let nextBalance = head (filter (filterByYearAndMonth 2018 3) db )
+        assertEqual "Fluxo de caixa em 02/2018" (getValor nextBalance) ( digits (getV (last (cashFlowByMonth db 2018 2))) 2) 
+    )
+
+
+testCashFlowMonth02 = 
+    TestCase (
+    do 
+        db <- getDB
+        let nextBalance = head (filter (filterByYearAndMonth 2018 7) db )
+        assertEqual "Fluxo de caixa em 02/2018" (getValor nextBalance) ( digits (getV (last (cashFlowByMonth db 2018 6))) 2) 
+    )
+
+
+testCashFlowMonth03 = 
+    TestCase (
+    do 
+        db <- getDB
+        let nextBalance = head (filter (filterByYearAndMonth 2017 5) db )
+        assertEqual "Fluxo de caixa em 02/2018" (getValor nextBalance) ( digits (getV (last (cashFlowByMonth db 2017 4))) 2) 
+    )
+
+
+testsCashFlowMonth =
+    TestList [ 
+        TestLabel "Caso 1" testCashFlowMonth01, 
+        TestLabel "Caso 2" testCashFlowMonth02,
+        TestLabel "Caso 3" testCashFlowMonth03 ]
+
+
+
+
+runAllTests =
+    TestList [
+        TestLabel "Filtro por ano" testsFilterYear,
+        TestLabel "Filtro por mes" testsFilterMonth,
+        TestLabel "Calcular as receitos por mes" testsCreditsMonth,
+        TestLabel "Calcular as despesas por mes" testsDebitsMonth,
+        TestLabel "Calcular as sobras por mes" testsRemainderMonth,
+        TestLabel "Calcular o saldo final do mes" testsBalanceMonth,
+        TestLabel "Calcular o saldo máximo do mes" testsMaxBalanceMonth,
+        TestLabel "Calcular o saldo mínimo do mes" testsMaxBalanceMonth,
+        TestLabel "Calcular média dos créditos por ano" testsCalculateAverageCreditsByYear,
+        TestLabel "Calcular média das despesas por ano" testsCalculateAverageDebitsByYear,
+        TestLabel "Calcular média das sobras por ano" testsAverageRemainderByYear,
+        TestLabel "Calcular o fluxo de caixa por mês" testsCashFlowMonth
+
+    ]
 
 
