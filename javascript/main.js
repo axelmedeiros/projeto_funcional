@@ -42,11 +42,11 @@ const calculateRevenue = (database, year, month) => {
 // calcula a despesa de um mês
 const calculateExpense = (database, year, month) => {
     const validTransactions = validTransactionsOnMonth(database, year, month)
-    return Math.abs(validTransactions.reduce((total, transaction) => sum(total, transaction, (value) => value < 0), 0))
+    return validTransactions.reduce((total, transaction) => sum(total, transaction, (value) => value < 0), 0)
 }
 
 // calcula as sobras de um mês
-const calculateLeftovers = (database, year, month) => calculateRevenue(database, year, month) - calculateExpense(database, year, month);
+const calculateLeftovers = (database, year, month) => calculateRevenue(database, year, month) + calculateExpense(database, year, month);
 
 // calcula o saldo 
 const calculateBalanceByYearAndMonth = (database, year, month) => {
@@ -75,7 +75,7 @@ const calculeBalaceMaxAchieved = (database, year, month) => {
 const calculeBalaceMinAchieved = (database, year, month) => {
     const validTransactions = filterByYearAndMonth(database, year, month).filter(transaction => isValidTransaction(transaction))
     const response = aux(validTransactions, Math.min)
-    return Math.abs(response)
+    return response
 }
 
 //calcula a media anual das receitas
