@@ -9,16 +9,20 @@ const range = (start, end, step=1) => {
 }
 
 // verifica se uma transacao é valida
-const isValidTransaction = (transaction) => !transaction.tipos.includes(ENUM_TRANSACAO.APLICACAO) && !transaction.tipos.includes(ENUM_TRANSACAO.VALOR_APLICACAO);
+const isValidTransaction = (transaction) => !transaction.tipos.includes("APLICACAO") && !transaction.tipos.includes("VALOR_APLICACAO");
 
-// caputa as transacoes que não são SALDO_CORRENTE
-const getTransactions = (monthTrasactions) => monthTrasactions.filter(transaction => {return transaction.textoIdentificador !== ENUM_TRANSACAO.SALDO_CORRENTE});
+// captura as transacoes que não são SALDO_CORRENTE
+const getTransactions = (transactions) => transactions.filter(transaction => !transaction.tipos.includes("SALDO_CORRENTE"));
 
-const getValidTransactions = (database, year, month) => {
-    const monthTrasactions = filterByYearAndMonth(database, year, month)
+// recupera as transcoes que nao
+const getValidTransactions = (database, year) => {
+    const monthTrasactions = filterByYear(database, year)
     const validTransactions = getTransactions(monthTrasactions).filter(transaction => isValidTransaction(transaction))
     return validTransactions
 }
+
+
+const validTransactionsOnMonth = (database, year, month) => getValidTransactions(database, year).filter(t=> t.data.mes===month)
 
 //soma no contexto da aplicação depende do resultado de uma função comparadora.
 const sum = (total, transaction, comparator) => (comparator(transaction.valor)) ? total + transaction.valor : total
@@ -31,13 +35,13 @@ const filterByYearAndMonth = (database, year, month) => filterByYear(database, y
 
 // calcula a receita de um mês
 const calculateRevenue = (database, year, month) => {
-    const validTransactions = getValidTransactions(database, year, month)
+    const validTransactions = validTransactionsOnMonth(database, year, month)
     return validTransactions.reduce((total, transaction) => sum(total, transaction, (value) => value > 0), 0)
 }
 
 // calcula a despesa de um mês
 const calculateExpense = (database, year, month) => {
-    const validTransactions = getValidTransactions(database, year, month)
+    const validTransactions = validTransactionsOnMonth(database, year, month)
     return Math.abs(validTransactions.reduce((total, transaction) => sum(total, transaction, (value) => value < 0), 0))
 }
 
@@ -46,51 +50,60 @@ const calculateLeftovers = (database, year, month) => calculateRevenue(database,
 
 // calcula o saldo 
 const calculateBalanceByYearAndMonth = (database, year, month) => {
-    const validTransactions = getTransactions(filterByYearAndMonth(database, year, month))
-    .filter(transaction => isValidTransaction(transaction))
+    const validTransactions = filterByYearAndMonth(database, year, month).filter(transaction => isValidTransaction(transaction))
     const response = validTransactions.reduce((total, t) => total + t.valor ,0)
     return response
 }
 
+function aux(array, func) {
+    if(array.length == 2) {
+        return func(array[0].valor, array[1].valor)
+    } else {
+        const head = array[0]
+        array.shift() 
+        return func(head.valor, head.valor + aux(array, func))
+    }
+
+}
+
 const calculeBalaceMaxAchieved = (database, year, month) => {
-    const validTransactions = getValidTransactions(database, year, month)
-    const response = validTransactions.reduce((maxBalance, transaction) => (maxBalance > transaction.valor) ? maxBalance : transaction.valor, -1)
+    const validTransactions = filterByYearAndMonth(database, year, month).filter(transaction => isValidTransaction(transaction))
+    const response = aux(validTransactions, Math.max)
     return response
 }
 
 const calculeBalaceMinAchieved = (database, year, month) => {
-    const validTransactions = getValidTransactions(database, year, month)
-    const response = validTransactions.reduce((minBalance, transaction) => (minBalance < transaction.valor) ? minBalance : transaction.valor, Infinity)
-    return response
+    const validTransactions = filterByYearAndMonth(database, year, month).filter(transaction => isValidTransaction(transaction))
+    const response = aux(validTransactions, Math.min)
+    return Math.abs(response)
 }
 
-
 //calcula a media anual das receitas
-const calculateAnnualRevenueAverage = (database, year) => (range(0,11).reduce((total, monthNumber) => total + calculateRevenue(database, year, monthNumber), 0)) / 12;
+const calculateAnnualRevenueAverage = (database, year) => (range(0,11).reduce((total, monthNumber) => total + calculateRevenue(database, year, monthNumber), 0)) / getValidTransactions(database, year).filter(t=>t.valor>0).length;
 
 //calcula a media anual das despesas
-const calculateAnnualExpenseAverage = (database, year) => (range(0,11).reduce((total, monthNumber) => total + calculateExpense(database, year, monthNumber), 0)) / 12;
+const calculateAnnualExpenseAverage = (database, year) => (range(0,11).reduce((total, monthNumber) => total + calculateExpense(database, year, monthNumber), 0)) / getValidTransactions(database, year).filter(t=>t.valor<0).length;
 
 //calcula a media anual das sobras
 const calculateAnnualLeftoversAverage = (database, year) => (range(0,11).reduce((total, monthNumber) => total + calculateLeftovers(database, year, monthNumber), 0)) / 12;
 
 
+// pega o fluxo do caixa                ---------------->considerando que todos os meses tem 31 dias
 const getCashFlow = (database, year, month) => {
-    const validTransactions = getValidTransactions(database, year, month)
+    const validTransactions = filterByYearAndMonth(database, year, month).filter(transaction => isValidTransaction(transaction))
     const sortedTransactionsByDay = validTransactions.sort((t1, t2) => t1.data.diaDoMes - t2.data.diaDoMes)
-    return getCashFlowAux(sortedTransactionsByDay, 1)
+    return getCashFlowAux(sortedTransactionsByDay, 1, 0)
 }
 
-
-const getCashFlowAux = (transacoes,  day) => {
+const getCashFlowAux = (transacoes,  day, prev) => {
     let dayBalance = 0
-    if(day < 31){
+    if(day <= 31){
         const dayTransactions = transacoes.filter(t => t.data.diaDoMes === day);
 
         if(dayTransactions.length !== 0)
-            dayBalance = dayTransactions.reduce((total, t) => total + t.valor, 0)
+            dayBalance = dayTransactions.reduce((total, t) => total + t.valor, 0) 
         
-        return [{"day":day, "dayBalance": dayBalance}].concat(getCashFlowAux(transacoes, day + 1))
+        return [{"day":day, "dayBalance": dayBalance + prev}].concat(getCashFlowAux(transacoes, day + 1, dayBalance + prev))
     } else {
         return []
     }

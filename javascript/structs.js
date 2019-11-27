@@ -52,7 +52,7 @@ class Calendario {
 
 class Transacao{
     constructor(parserObject){
-            this.data = this.buildData(parserObject.data)
+            this.data = this.buildData(parserObject.datas)
             this.textoIdentificador = parserObject.textoIdentificador
             this.valor = parserObject.valor
             this.descricao = parserObject.descricao
