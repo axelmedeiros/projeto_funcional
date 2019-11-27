@@ -252,3 +252,49 @@ testsMinBalanceMonth =
         TestLabel "Caso 2" testMinBalanceMonth02 ]
 
 
+testCalculateAverageCreditsByYear01 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = filter (filterByValue (>) 0)(filter (filterByYearAndMonth 2018 0) db)
+        assertEqual "Saldo mínimo de parte do mês em 02/2019" (3498.386666666667) (calculateAverageCreditsByYear f1 2018))
+
+
+
+testCalculateAverageCreditsByYear02 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = filter (filterByValue (>) 0)(filter (filterByYearAndMonth 2019 0) db)
+        assertEqual "Saldo mínimo de parte do mês em 02/2019" (6256.8) (digits (calculateAverageCreditsByYear f1 2019) 2))
+
+
+testsCalculateAverageCreditsByYear =
+    TestList [ 
+        TestLabel "Caso 1" testCalculateAverageCreditsByYear01, 
+        TestLabel "Caso 2" testCalculateAverageCreditsByYear02 ]
+
+
+
+testCalculateAverageDebitsByYear01 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = filter (filterByValue (<) 0)(filter (filterByYearAndMonth 2019 0) db)
+        assertEqual "Saldo mínimo de parte do mês em 02/2019" (-1299.24) (digits (calculateAverageDebitsByYear f1 2019) 2))
+
+
+
+testCalculateAverageDebitsByYear02 = 
+    TestCase (
+    do 
+        db <- getDB
+        let f1 = filter (filterByValue (<) 0)(filter (filterByYearAndMonth 2018 0) db)
+        assertEqual "Saldo mínimo de parte do mês em 02/2019" (-1333.93) (digits (calculateAverageDebitsByYear f1 2018) 2))
+
+testsCalculateAverageDebitsByYear =
+    TestList [ 
+        TestLabel "Caso 1" testCalculateAverageDebitsByYear01, 
+        TestLabel "Caso 2" testsCalculateAverageDebitsByYear ]
+
+

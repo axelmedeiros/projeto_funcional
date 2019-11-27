@@ -113,7 +113,7 @@ calculateAverageDebitsByYear _data y = (foldr (+) 0 (map (getValor) f2)) / fromI
 
 -- Calcular a média das sobras em determinado ano
 
-calculateAverageRemainderByYear _data y = (foldr (+) 0 (map (getValor) f2)) / fromIntegral (length f2)
+calculateAverageRemainderByYear _data y = (foldr (+) 0 (map (getValor) f2)) / 12
     where
         f1 = filter (filterByYear y) _data 
         f2 = filter (filterTransations) f1
